@@ -1,0 +1,4 @@
+myenv/*
+.idea/*
+config.ini
+*.log.txt
