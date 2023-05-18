@@ -125,6 +125,7 @@ def do_login(sign_in_link):
     print("\n\tlogin successful!\n")
 
 def reschedule(date, appointment_url, time_url):
+    print("Attempting to reschedule...")
     time = get_time(date, time_url)
     driver.get(appointment_url)
     headers = {
@@ -300,13 +301,16 @@ if __name__ == "__main__":
             except KeyboardInterrupt:
                 kill_infinite_loop = True
                 # Exception Occured
-                msg = f"Break the loop after exception!\n"
+                msg = f"Loop killed due to Keyboard Interrupt Exception!\n"
                 END_MSG_TITLE = "EXCEPTION"
+                info_logger(LOG_FILE_NAME, msg)
                 break
-            except:
+            except Exception as ex:
                 # Exception Occured
-                msg = f"Break the loop after exception!\n"
+                msg = f"Loop killed due to exception!\n"
+                msg += str(ex)
                 END_MSG_TITLE = "EXCEPTION"
+                info_logger(LOG_FILE_NAME, msg)
                 break
 
         if (found_appointment):
