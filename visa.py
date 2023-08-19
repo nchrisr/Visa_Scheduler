@@ -125,6 +125,8 @@ def do_login(sign_in_link):
     print("\n\tlogin successful!\n")
 
 def reschedule(date, appointment_url, time_url):
+    msg = ""
+    title = ""
     print("Attempting to reschedule...")
     time = get_time(date, time_url)
     driver.get(appointment_url)
@@ -142,13 +144,21 @@ def reschedule(date, appointment_url, time_url):
         "appointments[consulate_appointment][date]": date,
         "appointments[consulate_appointment][time]": time,
     }
-    r = requests.post(appointment_url, headers=headers, data=data)
-    if(r.text.find('Successfully Scheduled') != -1):
-        title = "SUCCESS"
-        msg = f"Rescheduled Successfully! {date} {time}"
-    else:
-        title = "FAIL"
-        msg = f"Reschedule Failed!!! {date} {time}"
+    r = None
+    try:
+        r = requests.post(appointment_url, headers=headers, data=data)
+    except Exception as ex:
+        title = "Reschedule Post Request failed."
+        msg += str(ex)
+
+    #r = requests.post(appointment_url, headers=headers, data=data)
+    if r is not None:
+        if(r.text.find('Successfully Scheduled') != -1):
+            title = "SUCCESS"
+            msg += f"\nRescheduled Successfully! {date} {time}"
+        else:
+            title = "FAIL"
+            msg += f"\nReschedule Failed!!! {date} {time}"
     return [title, msg]
 
 
@@ -205,6 +215,8 @@ if LOCAL_USE:
         driver = webdriver.Chrome(executable_path=LOCAL_CHROMEDRIVER_PATH)
     else:
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
 else:
     driver = webdriver.Remote(command_executor=HUB_ADDRESS, options=webdriver.ChromeOptions())
 
@@ -286,7 +298,11 @@ if __name__ == "__main__":
                         # Let program rest a little
                         driver.get(sign_out_url)
                         logged_in = False
-                        time.sleep(WORK_COOLDOWN_TIME * hour)
+                        sleep_time = WORK_COOLDOWN_TIME * hour
+                        msg = "\nWill wait :  ~ {:.2f} seconds".format(sleep_time)
+                        print(msg)
+                        info_logger(LOG_FILE_NAME, msg)
+                        time.sleep(sleep_time)
 
                         #Login again and continue after waiting.
                         do_login(sign_in_link)
@@ -327,11 +343,11 @@ if __name__ == "__main__":
             break
 
         if empty_dates_count >= len(EMBASSIES_TO_CHECK):
-            print("Finished executing, All embassy dates were empty will wait for 5 hours and run again.")
-            time.sleep(60*60*5)
+            print("Finished executing, All embassy dates were empty will wait for " + str(BAN_COOLDOWN_TIME) + " hours and then run again.")
+            time.sleep(60*60*BAN_COOLDOWN_TIME)
         else:
-            print("Finished executing, will wait for 5 minutes and run again.")
-            time.sleep(60*5)
+            print("Finished executing, will wait for 4 minutes and run again.")
+            time.sleep(60*4)
 
         if kill_infinite_loop:
             break
