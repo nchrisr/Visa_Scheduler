@@ -28,7 +28,7 @@ pip install pygame>=2.4.0
 - Edit the `EMBASSIES_TO_CHECK` variable in `visa.py` to be a list of the embassies you want to check. Use `embassy.py` to see the codes for the embassies you want to check
 - Run visa.py file, using `python3 visa.py`
 
-## TODO
+## TODO's to consider
 - Make timing optimum. (There are lots of unanswered questions. How is the banning algorithm? How can we avoid it? etc.)
 - Adding a GUI (Based on PyQt)
 - Multi-account support (switching between accounts in Resting times)
